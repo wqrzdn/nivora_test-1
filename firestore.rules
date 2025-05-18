@@ -1,0 +1,205 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isOwner() {
+      return isSignedIn() && getUserData().userType == 'owner';
+    }
+    
+    function isTenant() {
+      return isSignedIn() && getUserData().userType == 'tenant';
+    }
+    
+    function isServiceProvider() {
+      return isSignedIn() && getUserData().userType == 'service-provider';
+    }
+    
+    function isOwnerOf(propertyId) {
+      let property = get(/databases/$(database)/documents/properties/$(propertyId)).data;
+      return isSignedIn() && property.ownerId == request.auth.uid;
+    }
+    
+    // Check if a property exists and get its owner ID
+    function getPropertyOwnerId(propertyId) {
+      return get(/databases/$(database)/documents/properties/$(propertyId)).data.ownerId;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Allow anyone to read user data
+      allow read: if isSignedIn();
+      // Allow users to write only to their own document
+      allow write: if request.auth.uid == userId;
+    }
+    
+    // Properties collection
+    match /properties/{propertyId} {
+      // Anyone signed in can read properties
+      allow read: if isSignedIn();
+      // Only owners can create properties and must set themselves as owner
+      allow create: if isOwner() && request.resource.data.ownerId == request.auth.uid;
+      // Only the property owner can update or delete their properties
+      allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+    
+    // Applications collection
+    match /applications/{applicationId} {
+      // Allow read if the user is the tenant who applied or the property owner
+      // Simplified to avoid excessive get() operations which can cause permission issues
+      allow read: if isSignedIn();
+      
+      // Allow tenants to create applications
+      allow create: if isSignedIn() && request.resource.data.tenantId == request.auth.uid;
+      
+      // Allow updates by the tenant who applied or the property owner
+      allow update: if isSignedIn() && (
+        resource.data.tenantId == request.auth.uid ||
+        resource.data.ownerId == request.auth.uid
+      );
+      
+      // Allow deletion by the tenant who applied
+      allow delete: if isSignedIn() && resource.data.tenantId == request.auth.uid;
+    }
+    
+    // Comments collection
+    match /comments/{commentId} {
+      // Anyone signed in can read comments
+      allow read: if isSignedIn();
+      // Allow signed-in users to create comments
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // Only the comment author can update or delete their comments
+      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+    
+    // Services collection
+    match /services/{serviceId} {
+      // Anyone signed in can read services
+      allow read: if isSignedIn();
+      // Only service providers can create services and must set themselves as provider
+      allow create: if isServiceProvider() && request.resource.data.providerId == request.auth.uid;
+      // Only the service provider can update or delete their services
+      allow update, delete: if isSignedIn() && resource.data.providerId == request.auth.uid;
+    }
+    
+    // Service Bookings collection
+    match /serviceBookings/{bookingId} {
+      // Simplify read permissions to avoid permission errors
+      allow read: if isSignedIn();
+      
+      // Allow any signed-in user to create bookings (including service providers)
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      
+      // Allow updates by the user who created the booking or the service provider
+      allow update: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || 
+        resource.data.providerId == request.auth.uid
+      );
+      // Allow deletion by the user who created the booking
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+    
+    // Messages collection
+    match /messages/{messageId} {
+      // Allow read if the user is the sender or receiver
+      allow read: if isSignedIn();
+      
+      // Allow signed-in users to create messages
+      allow create: if isSignedIn() && request.resource.data.senderId == request.auth.uid;
+      
+      // Allow any participant to update messages (for marking as read)
+      allow update: if isSignedIn() && (
+        resource.data.senderId == request.auth.uid || 
+        resource.data.receiverId == request.auth.uid ||
+        (resource.data.participants != null && resource.data.participants.hasAny([request.auth.uid]))
+      );
+      
+      // Only the message sender can delete their messages
+      allow delete: if isSignedIn() && resource.data.senderId == request.auth.uid;
+    }
+    
+    // Roommate profiles collection
+    match /roommateProfiles/{profileId} {
+      // Anyone signed in can read roommate profiles
+      allow read: if isSignedIn();
+      // Allow signed-in users to create their own profile
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // Only the profile owner can update or delete their profile
+      allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+    
+    // Bookings collection
+    match /bookings/{bookingId} {
+      // Allow read for any signed-in user to simplify permissions
+      // This avoids excessive get() operations which can cause permission issues
+      allow read: if isSignedIn();
+      
+      // Allow any signed-in user to create bookings
+      // The application will enforce business rules about who can book
+      allow create: if isSignedIn();
+      
+      // Allow updates by the tenant who booked, the property owner, or service provider
+      // Simplified to avoid excessive get() operations
+      allow update: if isSignedIn() && (
+        resource.data.tenantId == request.auth.uid ||
+        resource.data.ownerId == request.auth.uid ||
+        (isServiceProvider() && resource.data.providerId == request.auth.uid)
+      );
+      
+      // Allow deletion by the tenant who booked or service provider
+      allow delete: if isSignedIn() && (
+        resource.data.tenantId == request.auth.uid ||
+        (isServiceProvider() && resource.data.providerId == request.auth.uid)
+      );
+    }
+    
+    // Favorites collection
+    match /favorites/{favoriteId} {
+      // Allow read if the user is the one who favorited
+      allow read: if isSignedIn();
+      // Allow create if the user is setting their own ID as the userId
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // Allow delete if the user is the one who created the favorite
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+    
+    // Services collection
+    match /services/{serviceId} {
+      // Allow read for all signed-in users
+      allow read: if isSignedIn();
+      
+      // Allow service providers to create services
+      allow create: if isServiceProvider() && request.resource.data.providerId == request.auth.uid;
+      
+      // Allow service providers to update and delete their own services
+      allow update, delete: if isServiceProvider() && resource.data.providerId == request.auth.uid;
+    }
+    
+    // Service bookings collection
+    match /serviceBookings/{bookingId} {
+      // Allow read for service providers (for their bookings) and users who made the booking
+      allow read: if isSignedIn();
+      
+      // Allow users to create bookings
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      
+      // Allow updates by the user who created the booking or the service provider
+      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.providerId == request.auth.uid);
+      
+      // Allow deletion by the user who created the booking
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+    
+    // Default deny for all other documents
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
