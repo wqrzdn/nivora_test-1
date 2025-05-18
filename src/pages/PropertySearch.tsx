@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, MapPin, DollarSign, Home, BedDouble, Bath, Calendar, Filter, Grid, Map, Edit, Trash2 } from 'lucide-react';
+import { Search, MapPin, DollarSign, Home, BedDouble, Bath, Filter, Grid, Map, Edit, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useProperty } from '../context/PropertyContext';
-import { Property } from '../context/PropertyContext';
+
 
 // Define a type that works with both mock data and Property type
 interface DisplayProperty {
@@ -128,8 +128,8 @@ const PropertySearch: React.FC<PropertySearchProps> = ({ ownerView = false }) =>
           
           {!ownerView && (
             <form onSubmit={handleSearch} className="max-w-4xl mx-auto">
-              <div className="flex flex-col md:flex-row items-center gap-4">
-                <div className="w-full relative">
+              <div className="flex flex-col md:flex-row items-stretch gap-4">
+                <div className="w-full relative flex-grow">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <MapPin className="h-5 w-5 text-gray-300" />
                   </div>
@@ -146,7 +146,7 @@ const PropertySearch: React.FC<PropertySearchProps> = ({ ownerView = false }) =>
                 <button 
                   type="button" 
                   onClick={toggleFilters}
-                  className="flex items-center gap-2 bg-primary-500 hover:bg-primary-700 py-3 px-4 rounded-md"
+                  className="flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-700 py-3 px-4 rounded-md w-full md:w-auto"
                 >
                   <Filter className="h-5 w-5" />
                   <span>Filters</span>
@@ -154,7 +154,7 @@ const PropertySearch: React.FC<PropertySearchProps> = ({ ownerView = false }) =>
                 
                 <button 
                   type="submit" 
-                  className="bg-white text-primary-700 hover:bg-gray-100 py-3 px-6 rounded-md font-medium"
+                  className="bg-white text-primary-700 hover:bg-gray-100 py-3 px-6 rounded-md font-medium w-full md:w-auto"
                 >
                   <Search className="h-5 w-5 inline mr-2" />
                   Search
@@ -163,8 +163,8 @@ const PropertySearch: React.FC<PropertySearchProps> = ({ ownerView = false }) =>
               
               {/* Advanced Filters */}
               {filterOpen && (
-                <div className="mt-4 bg-white p-6 rounded-md shadow-lg">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="mt-4 bg-white p-4 md:p-6 rounded-md shadow-lg">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Price Range</label>
                       <div className="flex items-center gap-2">
@@ -294,16 +294,16 @@ const PropertySearch: React.FC<PropertySearchProps> = ({ ownerView = false }) =>
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-700"></div>
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {displayProperties.length > 0 ? (
               displayProperties.map((property) => (
-                <div key={property.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                <div key={property.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow flex flex-col h-full">
                   <img 
                     src={property.images && property.images[0] ? property.images[0] : 'https://via.placeholder.com/400x200?text=No+Image'} 
                     alt={property.title} 
                     className="w-full h-48 object-cover"
                   />
-                  <div className="p-4">
+                  <div className="p-4 flex flex-col flex-grow">
                     <h3 className="font-semibold text-lg mb-2">{property.title}</h3>
                     <div className="flex items-center text-gray-600 mb-2">
                       <MapPin className="h-4 w-4 mr-1" />
@@ -312,7 +312,7 @@ const PropertySearch: React.FC<PropertySearchProps> = ({ ownerView = false }) =>
                     <div className="text-primary-600 font-medium mb-3">
                       ₹{property.rent.toLocaleString()}/month
                     </div>
-                    <div className="flex flex-wrap gap-3 mb-4">
+                    <div className="flex flex-wrap gap-2 mb-4">
                       <div className="flex items-center text-gray-700 text-sm">
                         <BedDouble className="h-4 w-4 mr-1" />
                         <span>{property.bedrooms} Bed</span>
@@ -328,10 +328,10 @@ const PropertySearch: React.FC<PropertySearchProps> = ({ ownerView = false }) =>
                     </div>
                     
                     {ownerView ? (
-                      <div className="flex justify-between">
+                      <div className="flex flex-wrap gap-2 justify-between">
                         <Link 
                           to={`/owner/properties/${property.id}/edit`} 
-                          className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                          className="inline-flex items-center px-2 py-2 border border-gray-300 rounded-md text-xs md:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                         >
                           <Edit className="h-4 w-4 mr-1" />
                           Edit
@@ -342,14 +342,14 @@ const PropertySearch: React.FC<PropertySearchProps> = ({ ownerView = false }) =>
                               deleteProperty(property.id);
                             }
                           }}
-                          className="inline-flex items-center px-3 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-white hover:bg-red-50"
+                          className="inline-flex items-center px-2 py-2 border border-red-300 rounded-md text-xs md:text-sm font-medium text-red-700 bg-white hover:bg-red-50"
                         >
                           <Trash2 className="h-4 w-4 mr-1" />
                           Delete
                         </button>
                         <Link 
                           to={`/properties/${property.id}`}
-                          className="inline-flex items-center px-3 py-2 border border-primary-300 rounded-md text-sm font-medium text-primary-700 bg-white hover:bg-primary-50"
+                          className="inline-flex items-center px-2 py-2 border border-primary-300 rounded-md text-xs md:text-sm font-medium text-primary-700 bg-white hover:bg-primary-50"
                         >
                           View
                         </Link>

@@ -205,7 +205,7 @@ const PropertyDetails: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-2">
-            <div className="rounded-lg overflow-hidden bg-gray-200 h-[400px]">
+            <div className="rounded-lg overflow-hidden bg-gray-200 h-[300px] md:h-[400px]">
               {mainImage ? (
                 <img 
                   src={mainImage} 
@@ -224,11 +224,11 @@ const PropertyDetails: React.FC = () => {
               )}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 md:gap-4">
             {property.images && property.images.slice(0, 4).map((image: string, index: number) => (
               <div 
                 key={index} 
-                className={`rounded-lg overflow-hidden bg-gray-200 cursor-pointer h-[190px] ${
+                className={`rounded-lg overflow-hidden bg-gray-200 cursor-pointer h-[100px] sm:h-[140px] md:h-[190px] ${
                   mainImage === image ? 'ring-2 ring-primary-500' : ''
                 }`}
                 onClick={() => handleImageClick(image)}
@@ -251,12 +251,12 @@ const PropertyDetails: React.FC = () => {
 
       {/* Property Content */}
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
             {/* Title and basic details */}
             <div className="mb-8">
-              <div className="flex justify-between items-start">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
                 <div>
                   <h1 className="text-3xl font-bold mb-2">{property.title}</h1>
                   <div className="flex items-center text-gray-600 mb-4">
@@ -273,7 +273,7 @@ const PropertyDetails: React.FC = () => {
                   </button>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-4 mb-4">
+              <div className="flex flex-wrap gap-2 md:gap-4 mb-4">
                 <div className="flex items-center bg-primary-50 text-primary-800 px-3 py-1 rounded-full">
                   <DollarSign className="w-4 h-4 mr-1" />
                   <span className="font-medium">₹{property.rent}/month</span>
@@ -313,7 +313,7 @@ const PropertyDetails: React.FC = () => {
             {/* Property Details */}
             <div className="mb-8">
               <h2 className="text-xl font-bold mb-4">Property Details</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div className="space-y-2">
                   <div className="flex justify-between px-4 py-2 bg-gray-100 rounded">
                     <span className="text-gray-600">Property Type</span>
@@ -356,7 +356,7 @@ const PropertyDetails: React.FC = () => {
             {/* Amenities */}
             <div className="mb-8">
               <h2 className="text-xl font-bold mb-4">Amenities</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
                 {property.amenities && property.amenities.map((amenity: string, index: number) => {
                   let icon;
                   if (amenity.toLowerCase().includes('wifi')) icon = <Wifi className="h-5 w-5 mr-2 text-green-600" />;
@@ -403,7 +403,7 @@ const PropertyDetails: React.FC = () => {
           {/* Sidebar */}
           <div>
             {/* Price and Contact Card */}
-            <div className="card sticky top-20 p-6 mb-6">
+            <div className="card sticky top-20 p-4 md:p-6 mb-6">
               <div className="mb-4">
                 <div className="text-3xl font-bold text-primary-600 mb-1">₹{property.rent}<span className="text-lg text-gray-500 font-normal">/month</span></div>
                 <div className="text-sm text-gray-600">Security Deposit: ₹{property.deposit}</div>
@@ -425,7 +425,7 @@ const PropertyDetails: React.FC = () => {
                     </label>
                     <textarea
                       id="message"
-                      rows={4}
+                      rows={3}
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                       placeholder="I'm interested in this property. Is it still available?"
                       value={contactMessage}
@@ -433,7 +433,7 @@ const PropertyDetails: React.FC = () => {
                       required
                     />
                   </div>
-                  <button type="submit" className="btn btn-primary w-full">
+                  <button type="submit" className="btn btn-primary w-full text-sm md:text-base py-2 md:py-3">
                     Send Message
                   </button>
                 </form>

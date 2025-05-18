@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogIn, LogOut, Home, Users, MessageSquare, Heart, Wrench } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -12,13 +12,32 @@ const Header = ({ isScrolled, isOwner = false }: HeaderProps) => {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+    
+    // When opening the menu on mobile, prevent background scrolling
+    if (isMobile) {
+      document.body.style.overflow = !isMenuOpen ? 'hidden' : '';
+    }
   };
 
   const closeMenu = () => {
     setIsMenuOpen(false);
+    document.body.style.overflow = '';
   };
 
   const handleLogout = () => {
@@ -35,7 +54,7 @@ const Header = ({ isScrolled, isOwner = false }: HeaderProps) => {
           : 'bg-transparent py-4'
       }`}
     >
-      <div className="container mx-auto px-4 md:px-6">
+      <div className="container mx-auto px-4 md:px-6 relative">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
@@ -248,7 +267,7 @@ const Header = ({ isScrolled, isOwner = false }: HeaderProps) => {
 
           {/* Mobile Menu Button */}
           <button 
-            className="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100"
+            className="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 z-50 relative"
             onClick={toggleMenu}
             aria-label="Toggle menu"
           >
@@ -257,10 +276,10 @@ const Header = ({ isScrolled, isOwner = false }: HeaderProps) => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Full screen overlay */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-t shadow-lg">
-          <div className="container mx-auto px-4 py-4">
+        <div className="md:hidden fixed inset-0 z-50 bg-white overflow-y-auto pt-16">
+          <div className="container mx-auto px-4 py-4 h-full">
             <nav className="flex flex-col space-y-4">
               {isAuthenticated ? (
                 user?.userType === 'service-provider' ? (
@@ -499,7 +518,7 @@ const Header = ({ isScrolled, isOwner = false }: HeaderProps) => {
               )}
               
               {/* Mobile Auth */}
-              <div className="pt-4 mt-4 border-t border-gray-200">
+              <div className="pt-4 mt-4 border-t border-gray-200 mb-16">
                 {isAuthenticated ? (
                   <div className="flex flex-col space-y-3">
                     <div className="p-2 text-gray-700">
