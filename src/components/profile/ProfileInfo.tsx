@@ -1,18 +1,18 @@
-import React from 'react';
-import { Box, Grid, Typography, Divider, Avatar } from '@mui/material';
+import { FC } from 'react';
+import { Box, Typography, Divider, Avatar } from '@mui/material';
 import { User } from '../../types/user';
 
 interface ProfileInfoProps {
   user: User;
 }
 
-const ProfileInfo: React.FC<ProfileInfoProps> = ({ user }) => {
+const ProfileInfo: FC<ProfileInfoProps> = ({ user }) => {
   const fullName = `${user.firstName} ${user.lastName}`;
   
   return (
     <Box>
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={4} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 3 }}>
+        <Box sx={{ gridColumn: {xs: 'span 12', sm: 'span 4'}, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Avatar
             sx={{ width: 150, height: 150, mb: 2 }}
             src={user.avatarUrl}
@@ -24,39 +24,39 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ user }) => {
             {fullName}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {user.userType === 'owner' ? 'Property Owner' : 'Property Seeker'}
+            {user.userType === 'owner' ? 'Property Owner' : user.userType === 'tenant' ? 'Property Seeker' : user.userType === 'service-provider' ? 'Service Provider' : 'User'}
           </Typography>
-        </Grid>
+        </Box>
         
-        <Grid item xs={12} sm={8}>
+        <Box sx={{ gridColumn: {xs: 'span 12', sm: 'span 8'} }}>
           <Typography variant="h6" gutterBottom>
             Contact Information
           </Typography>
           <Divider sx={{ mb: 2 }} />
           
-          <Grid container spacing={2}>
-            <Grid item xs={4}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 2 }}>
+            <Box sx={{ gridColumn: 'span 4' }}>
               <Typography variant="body2" color="text.secondary">
                 Email
               </Typography>
-            </Grid>
-            <Grid item xs={8}>
+            </Box>
+            <Box sx={{ gridColumn: 'span 8' }}>
               <Typography variant="body1">
                 {user.email}
               </Typography>
-            </Grid>
+            </Box>
             
-            <Grid item xs={4}>
+            <Box sx={{ gridColumn: 'span 4' }}>
               <Typography variant="body2" color="text.secondary">
                 Phone
               </Typography>
-            </Grid>
-            <Grid item xs={8}>
+            </Box>
+            <Box sx={{ gridColumn: 'span 8' }}>
               <Typography variant="body1">
                 {user.phone || 'Not provided'}
               </Typography>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
           
           {user.bio && (
             <>
@@ -69,10 +69,10 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ user }) => {
               </Typography>
             </>
           )}
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 };
 
-export default ProfileInfo; 
+export default ProfileInfo;

@@ -10,8 +10,14 @@ interface RoommateProfileFormProps {
 
 const RoommateProfileForm: React.FC<RoommateProfileFormProps> = ({ isEdit = false }) => {
   const navigate = useNavigate();
+  // user is needed for form submission
   const { user } = useAuth();
   const { userProfile, createProfile, updateProfile, isLoading } = useRoommate();
+  
+  // Define the allowed types for form fields
+  type FoodPreferenceType = 'vegetarian' | 'non-vegetarian' | 'vegan' | 'no-preference';
+  type WorkScheduleType = 'flexible' | 'day' | 'night';
+  type CleanlinessType = 'very-clean' | 'clean' | 'moderate' | 'relaxed';
   
   const [formData, setFormData] = useState({
     budget: {
@@ -23,9 +29,9 @@ const RoommateProfileForm: React.FC<RoommateProfileFormProps> = ({ isEdit = fals
       smoking: false,
       pets: false,
       drinking: false,
-      foodPreference: 'no-preference',
-      workSchedule: 'flexible',
-      cleanliness: 'moderate'
+      foodPreference: 'no-preference' as FoodPreferenceType,
+      workSchedule: 'flexible' as WorkScheduleType,
+      cleanliness: 'moderate' as CleanlinessType
     },
     bio: '',
     lookingFor: ''
@@ -64,13 +70,54 @@ const RoommateProfileForm: React.FC<RoommateProfileFormProps> = ({ isEdit = fals
     
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof typeof prev],
-          [child]: value
+      
+      // Special handling for typed lifestyle fields to ensure type safety
+      if (parent === 'lifestyle') {
+        if (child === 'foodPreference') {
+          const typedValue = value as FoodPreferenceType;
+          setFormData(prev => ({
+            ...prev,
+            [parent]: {
+              ...prev[parent as keyof typeof prev],
+              [child]: typedValue
+            }
+          }));
+        } else if (child === 'workSchedule') {
+          const typedValue = value as WorkScheduleType;
+          setFormData(prev => ({
+            ...prev,
+            [parent]: {
+              ...prev[parent as keyof typeof prev],
+              [child]: typedValue
+            }
+          }));
+        } else if (child === 'cleanliness') {
+          const typedValue = value as CleanlinessType;
+          setFormData(prev => ({
+            ...prev,
+            [parent]: {
+              ...prev[parent as keyof typeof prev],
+              [child]: typedValue
+            }
+          }));
+        } else {
+          setFormData(prev => ({
+            ...prev,
+            [parent]: {
+              ...prev[parent as keyof typeof prev],
+              [child]: value
+            }
+          }));
         }
-      }));
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          [parent]: {
+            ...prev[parent as keyof typeof prev],
+            [child]: value
+          }
+        }));
+      }
     } else {
       setFormData(prev => ({
         ...prev,

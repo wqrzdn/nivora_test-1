@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Avatar, Box, Button, Container, Grid, Paper, Typography, CircularProgress } from '@mui/material';
+import { Avatar, Box, Button, Container, Paper, Typography, CircularProgress } from '@mui/material';
 import EditProfileForm from './EditProfileForm';
 import ProfileInfo from './ProfileInfo';
 
 const Profile = () => {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
         <CircularProgress />
@@ -31,8 +31,8 @@ const Profile = () => {
   return (
     <Container maxWidth="md">
       <Paper elevation={3} sx={{ p: 4, mt: 4 }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 3 }}>
+          <Box sx={{ gridColumn: 'span 12', display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Typography variant="h4">My Profile</Typography>
             {!isEditing && (
               <Button 
@@ -43,9 +43,9 @@ const Profile = () => {
                 Edit Profile
               </Button>
             )}
-          </Grid>
+          </Box>
           
-          <Grid item xs={12} md={4} display="flex" flexDirection="column" alignItems="center">
+          <Box sx={{ gridColumn: {xs: 'span 12', md: 'span 4'}, display: "flex", flexDirection: "column", alignItems: "center" }}>
             <Avatar
               src={user.avatarUrl || undefined}
               alt={`${user.firstName} ${user.lastName}`}
@@ -55,22 +55,22 @@ const Profile = () => {
               {user.firstName} {user.lastName}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              {user.userType === 'agent' ? 'Real Estate Agent' : 'Property Seeker'}
+              {user.userType === 'owner' ? 'Property Owner' : user.userType === 'tenant' ? 'Property Seeker' : user.userType === 'service-provider' ? 'Service Provider' : 'User'}
             </Typography>
-          </Grid>
+          </Box>
           
-          <Grid item xs={12} md={8}>
+          <Box sx={{ gridColumn: {xs: 'span 12', md: 'span 8'} }}>
             {isEditing ? (
               <EditProfileForm 
                 user={user} 
                 onCancel={() => setIsEditing(false)} 
-                onSaved={() => setIsEditing(false)}
+                onSave={() => setIsEditing(false)}
               />
             ) : (
               <ProfileInfo user={user} />
             )}
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Paper>
     </Container>
   );

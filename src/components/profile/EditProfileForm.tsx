@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Box, Button, Grid, TextField, MenuItem, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Box, Button, TextField, MenuItem } from '@mui/material';
 import { User } from '../../types/user';
 
 interface EditProfileFormProps {
@@ -8,7 +8,7 @@ interface EditProfileFormProps {
   onCancel: () => void;
 }
 
-const EditProfileForm: React.FC<EditProfileFormProps> = ({ user, onSave, onCancel }) => {
+const EditProfileForm = ({ user, onSave, onCancel }: EditProfileFormProps) => {
   const [formData, setFormData] = useState({
     firstName: user.firstName || '',
     lastName: user.lastName || '',
@@ -89,8 +89,8 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ user, onSave, onCance
 
   return (
     <Box component="form" onSubmit={handleSubmit} noValidate>
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 3 }}>
+        <Box sx={{ gridColumn: {xs: 'span 12', sm: 'span 6'} }}>
           <TextField
             required
             fullWidth
@@ -101,8 +101,8 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ user, onSave, onCance
             error={!!errors.firstName}
             helperText={errors.firstName}
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </Box>
+        <Box sx={{ gridColumn: {xs: 'span 12', sm: 'span 6'} }}>
           <TextField
             required
             fullWidth
@@ -113,8 +113,8 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ user, onSave, onCance
             error={!!errors.lastName}
             helperText={errors.lastName}
           />
-        </Grid>
-        <Grid item xs={12}>
+        </Box>
+        <Box sx={{ gridColumn: 'span 12' }}>
           <TextField
             required
             fullWidth
@@ -126,8 +126,8 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ user, onSave, onCance
             error={!!errors.email}
             helperText={errors.email}
           />
-        </Grid>
-        <Grid item xs={12}>
+        </Box>
+        <Box sx={{ gridColumn: 'span 12' }}>
           <TextField
             fullWidth
             label="Phone Number"
@@ -137,8 +137,8 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ user, onSave, onCance
             error={!!errors.phone}
             helperText={errors.phone}
           />
-        </Grid>
-        <Grid item xs={12}>
+        </Box>
+        <Box sx={{ gridColumn: 'span 12' }}>
           <TextField
             select
             fullWidth
@@ -149,9 +149,10 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ user, onSave, onCance
           >
             <MenuItem value="tenant">Property Seeker</MenuItem>
             <MenuItem value="owner">Property Owner</MenuItem>
+            <MenuItem value="service-provider">Service Provider</MenuItem>
           </TextField>
-        </Grid>
-        <Grid item xs={12}>
+        </Box>
+        <Box sx={{ gridColumn: 'span 12' }}>
           <TextField
             fullWidth
             label="Bio"
@@ -161,8 +162,8 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ user, onSave, onCance
             value={formData.bio}
             onChange={handleChange}
           />
-        </Grid>
-        <Grid item xs={12}>
+        </Box>
+        <Box sx={{ gridColumn: 'span 12' }}>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>
             <Button variant="outlined" onClick={onCancel}>
               Cancel
@@ -171,10 +172,10 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({ user, onSave, onCance
               Save Changes
             </Button>
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 };
 
-export default EditProfileForm; 
+export default EditProfileForm;
