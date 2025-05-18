@@ -11,7 +11,7 @@ import { db } from '../config/firebase';
 const PropertyDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getPropertyById, isLoading, error } = useProperty();
+  const { getPropertyById, isLoading } = useProperty();
   const { user } = useAuth();
   
   const [property, setProperty] = useState<any>(null);
@@ -178,7 +178,7 @@ const PropertyDetails: React.FC = () => {
   }
 
   // Show error message if property not found or error occurred
-  if ((!property && !loadingProperty) || error) {
+  if (!property && !loadingProperty) {
     return (
       <div className="min-h-screen flex justify-center items-center flex-col p-4">
         <h2 className="text-2xl font-bold mb-4 text-gray-800">Property Not Found</h2>
